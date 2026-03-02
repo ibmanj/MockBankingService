@@ -1,0 +1,361 @@
+openapi: 3.0.3
+info:
+  title: Mock Banking Service - Customers API
+  description: API for managing customers in the mock banking service
+  version: 1.0.0
+  contact:
+    name: API Support
+    email: anjana.ananth@ibm.com
+
+servers:
+  - url: http://localhost:3000/api
+    description: Local development server
+  - url: https://mockbankingservice.onrender.com/api
+    description: Production server
+
+tags:
+  - name: Customers
+    description: Operations related to customers
+
+paths:
+  /customers:
+    get:
+      tags:
+        - Customers
+      summary: Get all customers
+      description: Retrieve a list of all customers with their accounts and cards. Optionally filter by first name and/or last name.
+      operationId: getAllCustomers
+      parameters:
+        - name: firstName
+          in: query
+          description: Filter by customer first name
+          required: false
+          schema:
+            type: string
+            example: John
+        - name: lastName
+          in: query
+          description: Filter by customer last name
+          required: false
+          schema:
+            type: string
+            example: Doe
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  count:
+                    type: integer
+                    example: 5
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Customer'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /customers/{id}:
+    get:
+      tags:
+        - Customers
+      summary: Get customer by ID
+      description: Retrieve a specific customer by their ID, including their accounts and cards
+      operationId: getCustomerById
+      parameters:
+        - name: id
+          in: path
+          description: Customer ID
+          required: true
+          schema:
+            type: string
+            example: CUST001
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/Customer'
+        '404':
+          description: Customer not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  error:
+                    type: string
+                    example: Customer not found
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /customers/{id}/accounts:
+    get:
+      tags:
+        - Customers
+      summary: Get customer accounts
+      description: Retrieve all accounts for a specific customer
+      operationId: getCustomerAccounts
+      parameters:
+        - name: id
+          in: path
+          description: Customer ID
+          required: true
+          schema:
+            type: string
+            example: CUST001
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  count:
+                    type: integer
+                    example: 3
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Account'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /customers/{id}/cards:
+    get:
+      tags:
+        - Customers
+      summary: Get customer cards
+      description: Retrieve all cards for a specific customer
+      operationId: getCustomerCards
+      parameters:
+        - name: id
+          in: path
+          description: Customer ID
+          required: true
+          schema:
+            type: string
+            example: CUST001
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  count:
+                    type: integer
+                    example: 2
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Card'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+components:
+  schemas:
+    Customer:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique customer identifier
+          example: CUST001
+        firstName:
+          type: string
+          description: Customer's first name
+          example: John
+        lastName:
+          type: string
+          description: Customer's last name
+          example: Doe
+        email:
+          type: string
+          format: email
+          description: Customer's email address
+          example: john.doe@example.com
+        phone:
+          type: string
+          description: Customer's phone number
+          example: "+1-555-0123"
+        dateOfBirth:
+          type: string
+          format: date
+          description: Customer's date of birth
+          example: "1985-06-15"
+        address:
+          $ref: '#/components/schemas/Address'
+        accounts:
+          type: array
+          description: List of customer's accounts
+          items:
+            $ref: '#/components/schemas/Account'
+        cards:
+          type: array
+          description: List of customer's cards
+          items:
+            $ref: '#/components/schemas/Card'
+      required:
+        - id
+        - firstName
+        - lastName
+        - email
+        - phone
+        - dateOfBirth
+        - address
+
+    Address:
+      type: object
+      properties:
+        street:
+          type: string
+          example: "123 Main St"
+        city:
+          type: string
+          example: "New York"
+        state:
+          type: string
+          example: "NY"
+        zipCode:
+          type: string
+          example: "10001"
+        country:
+          type: string
+          example: "USA"
+
+    Account:
+      type: object
+      properties:
+        id:
+          type: string
+          example: ACC001
+        customerId:
+          type: string
+          example: CUST001
+        accountNumber:
+          type: string
+          example: "1234567890"
+        accountType:
+          type: string
+          enum:
+            - SAVINGS
+            - CHECKING
+            - FIXED_DEPOSIT
+          example: SAVINGS
+        balance:
+          type: number
+          format: double
+          example: 15000.50
+        currency:
+          type: string
+          example: USD
+        status:
+          type: string
+          enum:
+            - ACTIVE
+            - INACTIVE
+            - CLOSED
+          example: ACTIVE
+        openDate:
+          type: string
+          format: date
+          example: "2023-01-15"
+
+    Card:
+      type: object
+      properties:
+        id:
+          type: string
+          example: CARD001
+        customerId:
+          type: string
+          example: CUST001
+        accountId:
+          type: string
+          example: ACC001
+        cardNumber:
+          type: string
+          example: "4532-1234-5678-9010"
+        cardType:
+          type: string
+          enum:
+            - DEBIT
+            - CREDIT
+            - PREPAID
+          example: DEBIT
+        cardholderName:
+          type: string
+          example: John Doe
+        expiryDate:
+          type: string
+          example: "12/25"
+        cvv:
+          type: string
+          example: "123"
+        status:
+          type: string
+          enum:
+            - ACTIVE
+            - BLOCKED
+            - EXPIRED
+          example: ACTIVE
+        issueDate:
+          type: string
+          format: date
+          example: "2023-01-20"
+
+    Error:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: string
+          example: Internal server error
+        message:
+          type: string
+          example: An unexpected error occurred
+
+# Made with Bob

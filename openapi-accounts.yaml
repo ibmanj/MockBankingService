@@ -1,0 +1,171 @@
+openapi: 3.0.3
+info:
+  title: Mock Banking Service - Accounts API
+  description: API for managing bank accounts in the mock banking service
+  version: 1.0.0
+  contact:
+    name: API Support
+    email: anjana.ananth@ibm.com
+
+servers:
+  - url: http://localhost:3000/api
+    description: Local development server
+  - url: https://mockbankingservice.onrender.com/api
+    description: Production server
+
+tags:
+  - name: Accounts
+    description: Operations related to bank accounts
+
+paths:
+  /accounts:
+    get:
+      tags:
+        - Accounts
+      summary: Get all accounts
+      description: Retrieve a list of all bank accounts in the system
+      operationId: getAllAccounts
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  count:
+                    type: integer
+                    example: 10
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Account'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /accounts/{id}:
+    get:
+      tags:
+        - Accounts
+      summary: Get account by ID
+      description: Retrieve a specific bank account by its ID
+      operationId: getAccountById
+      parameters:
+        - name: id
+          in: path
+          description: Account ID
+          required: true
+          schema:
+            type: string
+            example: ACC001
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/Account'
+        '404':
+          description: Account not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  error:
+                    type: string
+                    example: Account not found
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+components:
+  schemas:
+    Account:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique account identifier
+          example: ACC001
+        customerId:
+          type: string
+          description: ID of the customer who owns this account
+          example: CUST001
+        accountNumber:
+          type: string
+          description: Bank account number
+          example: "1234567890"
+        accountType:
+          type: string
+          description: Type of account
+          enum:
+            - SAVINGS
+            - CHECKING
+            - FIXED_DEPOSIT
+          example: SAVINGS
+        balance:
+          type: number
+          format: double
+          description: Current account balance
+          example: 15000.50
+        currency:
+          type: string
+          description: Currency code
+          example: USD
+        status:
+          type: string
+          description: Account status
+          enum:
+            - ACTIVE
+            - INACTIVE
+            - CLOSED
+          example: ACTIVE
+        openDate:
+          type: string
+          format: date
+          description: Date when the account was opened
+          example: "2023-01-15"
+      required:
+        - id
+        - customerId
+        - accountNumber
+        - accountType
+        - balance
+        - currency
+        - status
+        - openDate
+
+    Error:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: string
+          example: Internal server error
+        message:
+          type: string
+          example: An unexpected error occurred
+
+# Made with Bob

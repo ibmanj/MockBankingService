@@ -1,0 +1,182 @@
+openapi: 3.0.3
+info:
+  title: Mock Banking Service - Cards API
+  description: API for managing bank cards in the mock banking service
+  version: 1.0.0
+  contact:
+    name: API Support
+    email: anjana.ananth@ibm.com
+
+servers:
+  - url: http://localhost:3000/api
+    description: Local development server
+  - url: https://mockbankingservice.onrender.com/api
+    description: Production server
+
+tags:
+  - name: Cards
+    description: Operations related to bank cards
+
+paths:
+  /cards:
+    get:
+      tags:
+        - Cards
+      summary: Get all cards
+      description: Retrieve a list of all bank cards in the system
+      operationId: getAllCards
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  count:
+                    type: integer
+                    example: 15
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Card'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /cards/{id}:
+    get:
+      tags:
+        - Cards
+      summary: Get card by ID
+      description: Retrieve a specific bank card by its ID
+      operationId: getCardById
+      parameters:
+        - name: id
+          in: path
+          description: Card ID
+          required: true
+          schema:
+            type: string
+            example: CARD001
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/Card'
+        '404':
+          description: Card not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  error:
+                    type: string
+                    example: Card not found
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+components:
+  schemas:
+    Card:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique card identifier
+          example: CARD001
+        customerId:
+          type: string
+          description: ID of the customer who owns this card
+          example: CUST001
+        accountId:
+          type: string
+          description: ID of the account linked to this card
+          example: ACC001
+        cardNumber:
+          type: string
+          description: Card number (masked for security)
+          example: "4532-1234-5678-9010"
+        cardType:
+          type: string
+          description: Type of card
+          enum:
+            - DEBIT
+            - CREDIT
+            - PREPAID
+          example: DEBIT
+        cardholderName:
+          type: string
+          description: Name printed on the card
+          example: John Doe
+        expiryDate:
+          type: string
+          description: Card expiry date in MM/YY format
+          pattern: '^\d{2}/\d{2}$'
+          example: "12/25"
+        cvv:
+          type: string
+          description: Card verification value (3 digits)
+          pattern: '^\d{3}$'
+          example: "123"
+        status:
+          type: string
+          description: Card status
+          enum:
+            - ACTIVE
+            - BLOCKED
+            - EXPIRED
+          example: ACTIVE
+        issueDate:
+          type: string
+          format: date
+          description: Date when the card was issued
+          example: "2023-01-20"
+      required:
+        - id
+        - customerId
+        - accountId
+        - cardNumber
+        - cardType
+        - cardholderName
+        - expiryDate
+        - cvv
+        - status
+        - issueDate
+
+    Error:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: string
+          example: Internal server error
+        message:
+          type: string
+          example: An unexpected error occurred
+
+# Made with Bob
