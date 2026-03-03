@@ -31,24 +31,37 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                    example: true
-                  count:
-                    type: integer
-                    example: 10
-                  data:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/Account'
+                $ref: '#/components/schemas/AccountListResponse'
+              example:
+                success: true
+                count: 2
+                data:
+                  - id: ACC001
+                    customerId: CUST001
+                    accountNumber: "1234567890"
+                    accountType: SAVINGS
+                    balance: 15000.50
+                    currency: USD
+                    status: ACTIVE
+                    openDate: "2023-01-15"
+                  - id: ACC002
+                    customerId: CUST001
+                    accountNumber: "1234567891"
+                    accountType: CHECKING
+                    balance: 5000.00
+                    currency: USD
+                    status: ACTIVE
+                    openDate: "2023-02-20"
         '500':
           description: Internal server error
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+              example:
+                success: false
+                error: Internal server error
+                message: An unexpected error occurred
 
   /accounts/{id}:
     get:
@@ -71,32 +84,37 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                    example: true
-                  data:
-                    $ref: '#/components/schemas/Account'
+                $ref: '#/components/schemas/AccountResponse'
+              example:
+                success: true
+                data:
+                  id: ACC001
+                  customerId: CUST001
+                  accountNumber: "1234567890"
+                  accountType: SAVINGS
+                  balance: 15000.50
+                  currency: USD
+                  status: ACTIVE
+                  openDate: "2023-01-15"
         '404':
           description: Account not found
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                    example: false
-                  error:
-                    type: string
-                    example: Account not found
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                success: false
+                error: Account not found
         '500':
           description: Internal server error
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+              example:
+                success: false
+                error: Internal server error
+                message: An unexpected error occurred
 
 components:
   schemas:
@@ -155,17 +173,63 @@ components:
         - status
         - openDate
 
+    AccountListResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          description: Indicates if the request was successful
+        count:
+          type: integer
+          description: Number of accounts returned
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Account'
+      required:
+        - success
+        - count
+        - data
+
+    AccountResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          description: Indicates if the request was successful
+        data:
+          $ref: '#/components/schemas/Account'
+      required:
+        - success
+        - data
+
+    ErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          description: Indicates if the request was successful
+        error:
+          type: string
+          description: Error message
+      required:
+        - success
+        - error
+
     Error:
       type: object
       properties:
         success:
           type: boolean
-          example: false
+          description: Indicates if the request was successful
         error:
           type: string
-          example: Internal server error
+          description: Error type
         message:
           type: string
-          example: An unexpected error occurred
+          description: Detailed error message
+      required:
+        - success
+        - error
 
 # Made with Bob

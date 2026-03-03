@@ -31,24 +31,41 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                    example: true
-                  count:
-                    type: integer
-                    example: 15
-                  data:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/Card'
+                $ref: '#/components/schemas/CardListResponse'
+              example:
+                success: true
+                count: 2
+                data:
+                  - id: CARD001
+                    customerId: CUST001
+                    accountId: ACC001
+                    cardNumber: "4532-1234-5678-9010"
+                    cardType: DEBIT
+                    cardholderName: John Doe
+                    expiryDate: "12/25"
+                    cvv: "123"
+                    status: ACTIVE
+                    issueDate: "2023-01-20"
+                  - id: CARD002
+                    customerId: CUST002
+                    accountId: ACC003
+                    cardNumber: "5412-7534-8901-2345"
+                    cardType: CREDIT
+                    cardholderName: Jane Smith
+                    expiryDate: "06/26"
+                    cvv: "456"
+                    status: ACTIVE
+                    issueDate: "2023-03-10"
         '500':
           description: Internal server error
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+              example:
+                success: false
+                error: Internal server error
+                message: An unexpected error occurred
 
   /cards/{id}:
     get:
@@ -71,32 +88,39 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                    example: true
-                  data:
-                    $ref: '#/components/schemas/Card'
+                $ref: '#/components/schemas/CardResponse'
+              example:
+                success: true
+                data:
+                  id: CARD001
+                  customerId: CUST001
+                  accountId: ACC001
+                  cardNumber: "4532-1234-5678-9010"
+                  cardType: DEBIT
+                  cardholderName: John Doe
+                  expiryDate: "12/25"
+                  cvv: "123"
+                  status: ACTIVE
+                  issueDate: "2023-01-20"
         '404':
           description: Card not found
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                    example: false
-                  error:
-                    type: string
-                    example: Card not found
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                success: false
+                error: Card not found
         '500':
           description: Internal server error
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+              example:
+                success: false
+                error: Internal server error
+                message: An unexpected error occurred
 
 components:
   schemas:
@@ -166,17 +190,63 @@ components:
         - status
         - issueDate
 
+    CardListResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          description: Indicates if the request was successful
+        count:
+          type: integer
+          description: Number of cards returned
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Card'
+      required:
+        - success
+        - count
+        - data
+
+    CardResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          description: Indicates if the request was successful
+        data:
+          $ref: '#/components/schemas/Card'
+      required:
+        - success
+        - data
+
+    ErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          description: Indicates if the request was successful
+        error:
+          type: string
+          description: Error message
+      required:
+        - success
+        - error
+
     Error:
       type: object
       properties:
         success:
           type: boolean
-          example: false
+          description: Indicates if the request was successful
         error:
           type: string
-          example: Internal server error
+          description: Error type
         message:
           type: string
-          example: An unexpected error occurred
+          description: Detailed error message
+      required:
+        - success
+        - error
 
 # Made with Bob
